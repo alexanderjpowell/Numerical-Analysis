@@ -1,0 +1,13 @@
+imshow(lena)
+[U,S,V] = svd(double(lena));
+imshow(U(:,1) * S(1,1) * V(:,1)')
+imshow(uint8(U(:,1) * S(1,1) * V(:,1)'))
+imshow(uint8(U(:,1:100) * S(1:100,1:100) * V(:,1:100)'))
+sv = diag(S);
+plot(sv)
+semilogy(sv, 'ro')
+EV = sum(sv(1:100)) / sum(sv)  % tells us how good the picture is.  percentage is closeness to original picture
+
+Graham Schmidt
+OX = GramSchmidt([2,1;1,1])
+OX(:,1)' * OX(:,2)  % outputs a number close to zero - expected

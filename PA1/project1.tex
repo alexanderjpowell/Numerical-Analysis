@@ -1,0 +1,438 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Short Sectioned Assignment
+% LaTeX Template
+% Version 1.0 (5/5/12)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% Original author:
+% Frits Wenneker (http://www.howtotex.com)
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass[paper=a4, fontsize=11pt]{scrartcl} % A4 paper and 11pt font size
+
+\usepackage[T1]{fontenc} % Use 8-bit encoding that has 256 glyphs
+\usepackage{fourier} % Use the Adobe Utopia font for the document - comment this line to return to the LaTeX default
+\usepackage[english]{babel} % English language/hyphenation
+\usepackage{amsmath,amsfonts,amsthm} % Math packages
+\usepackage{listings}
+\usepackage{graphicx}
+%\graphicspath{ {Desktop/PA3_numerical_analysis/} }
+
+\usepackage{lipsum} % Used for inserting dummy 'Lorem ipsum' text into the template
+
+\usepackage{sectsty} % Allows customizing section commands
+\allsectionsfont{\centering \normalfont\scshape} % Make all sections centered, the default font and small caps
+
+\usepackage{fancyhdr} % Custom headers and footers
+\pagestyle{fancyplain} % Makes all pages in the document conform to the custom headers and footers
+\fancyhead{} % No page header - if you want one, create it in the same way as the footers below
+\fancyfoot[L]{} % Empty left footer
+\fancyfoot[C]{} % Empty center footer
+\fancyfoot[R]{\thepage} % Page numbering for right footer
+\renewcommand{\headrulewidth}{0pt} % Remove header underlines
+\renewcommand{\footrulewidth}{0pt} % Remove footer underlines
+\setlength{\headheight}{13.6pt} % Customize the height of the header
+
+\numberwithin{equation}{section} % Number equations within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+\numberwithin{figure}{section} % Number figures within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+\numberwithin{table}{section} % Number tables within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+
+\setlength\parindent{0pt} % Removes all indentation from paragraphs - comment this line for an assignment with lots of text
+
+%----------------------------------------------------------------------------------------
+%	TITLE SECTION
+%----------------------------------------------------------------------------------------
+
+\newcommand{\horrule}[1]{\rule{\linewidth}{#1}} % Create horizontal rule command with 1 argument of height
+
+\title{	
+\normalfont \normalsize 
+\textsc{The College of William and Mary} \\ [25pt] % Your university, school and/or department name(s)
+\horrule{0.5pt} \\[0.4cm] % Thin top horizontal rule
+\huge Programming Assignment \#1 \\ % The assignment title
+\horrule{2pt} \\[0.5cm] % Thick bottom horizontal rule
+}
+
+\author{Alexander Powell} % Your name
+
+\date{\normalsize March 19, 2014} % Today's date or a custom date
+
+\begin{document}
+\lstset{language=MATLAB}
+
+\maketitle % Print the title
+
+%----------------------------------------------------------------------------------------
+%	PROBLEM 1
+%----------------------------------------------------------------------------------------
+
+\section{}
+
+The code below shows the MATLAB implementation of the preconditioned conjugate gradient method.  Note that both precondioners are written in the code but one is commented out.  
+
+\begin{lstlisting} [frame=single]
+function [ ] = pcg( n, A, b, x )
+% This function implements the preconditioned conjugate gradient method
+% Note: the function itself doesn't have any explicit outputs, only 
+% print stmts.
+TOL = 1e-15;
+N = 10000;
+
+% step 1
+r = b - A * x;
+
+% This is where to change the conditioner:
+cond_inv = 4 * eye(n);          % M1
+
+%ident = T_mat(n/2);            % M2
+%zer = zeros(n/2);
+%cond_inv = [ident, zer; zer, ident];
+
+w = cond_inv * r;
+v = cond_inv' * w;
+alpha = 0;
+for j = 1:n
+    alpha = alpha + (w(j))^2;
+end
+
+% step 2
+k = 1;
+% step 3
+while k <= N
+    % step 4
+    if norm(v) < TOL
+        fprintf('The solution vector is: %d\n', x);
+        fprintf('\n');
+        fprintf('And the residual is : %d\n', r);
+        fprintf('\n');
+        fprintf('Number of iterations is: %d\n', k);
+        fprintf('The procedure was successful. \n');
+        break;
+    end
+    
+    % step 5
+    u = A * v;
+    bottom = 0;
+    for j = 1:n
+        bottom = bottom + v(j) * u(j);
+    end
+    t = alpha / bottom;
+    x = x + t * v;
+    r = r - t * u;
+    w = cond_inv * r;
+    beta = 0;
+    for j = 1:n
+        beta = beta + (w(j))^2;
+    end
+    
+    % step 6
+    if abs(beta) < TOL
+        if norm(r) < TOL
+            fprintf('The solution vector is: %d\n', x);
+            fprintf('\n');
+            fprintf('And the residual is : %d\n', r);
+            fprintf('\n');
+            fprintf('Number of iterations is: %d\n', k);
+            fprintf('The procedure was successful. \n');
+            break;
+        end
+    end
+    
+    % step 7
+    s = beta / alpha;
+    v = cond_inv' * w + s * v;
+    alpha = beta;
+    k = k + 1;
+end
+
+% step 8
+if k > N
+    fprintf('Number of iterations is: %d\n', k);
+    fprintf('The maximum number of iterations was exceeded. \n');
+    fprintf('The procedure was unsuccessful. \n');
+end
+end
+\end{lstlisting}
+
+\bigskip
+\bigskip
+
+Also, to calculate the second preconditioner ($M2$), I wrote a separate MATLAB function displayed below.  
+
+\begin{lstlisting} [frame=single]
+function [ A ] = T_mat( n )
+% This function generates the A_n^2xn^2 matrix asked for in the project.  
+mat = zeros(n);
+for i = 1:n
+    for j = 1:n
+        if i == j
+            mat(i,j) = 4;
+        elseif i == (j + 1) || i == (j - 1)
+            mat(i,j) = -1;
+        else
+            mat(i,j) = 0;
+        end
+    end
+end
+A = mat;
+end
+\end{lstlisting}
+
+\bigskip
+\bigskip
+\bigskip
+\bigskip
+\bigskip
+\bigskip
+\bigskip
+\bigskip
+\bigskip
+
+
+\section{}
+
+
+The following are tables displaying the number of iterations and execution times of different algorithms.  Also, it should be noted that the $\infty$ symbol in certain cells indicates that the algorithm took too long to reasonably solve the system of the machine running the program ran out of memory.  Also, the execution times were found using MATLAB's built-in tic; and toc; methods.  
+
+\center{Algorithm Performance for n=$10$}
+\begin{center}
+\begin{tabular} {| c | c | c |}
+\hline
+          & Execution Time (sec) & Num of Iterations\\ \hline
+Gauss Elim& $0.00062$ & N/A\\ \hline
+Jacob     & $3.266225$ & $846$\\ \hline
+G-S       & $53.075348$ & $420$\\ \hline
+CG        & $0.00195$ & $15$\\ \hline
+PCG - M1  & $0.005567$ & $17$\\ \hline
+PCG - M2  & $0.006627$ & $69$\\
+\hline
+\end{tabular}
+\end{center}
+
+\center{Algorithm Performance for n=$20$}
+\begin{center}
+\begin{tabular} {| c | c | c |}
+\hline
+          & Execution Time (sec) & Num of Iterations\\ \hline
+Gauss Elim& $0.001311$ & N/A\\ \hline
+Jacob     & $61.60206$ & $3024$\\ \hline
+G-S       & $ \infty $ & $\infty$\\ \hline
+CG        & $ \infty $ & $\infty$\\ \hline
+PCG - M1  & $0.018958$ & $52$\\ \hline
+PCG - M2  & $0.053857$ & $228$\\
+\hline
+\end{tabular}
+\end{center}
+
+\center{Algorithm Performance for n=$40$}
+\begin{center}
+\begin{tabular} {| c | c | c |}
+\hline
+          & Execution Time (sec) & Num of Iterations\\ \hline
+Gauss Elim& $0.003146$ & N/A\\ \hline
+Jacob     & $1780.983$ & $11235$\\ \hline
+G-S       & $ \infty $ & $\infty$\\ \hline
+CG        & $0.009074$ & $79$\\ \hline
+PCG - M1  & $0.064816$ & $117$\\ \hline
+PCG - M2  & $1.577816$ & $515$\\
+\hline
+\end{tabular}
+\end{center}
+
+\center{Algorithm Performance for n=$80$}
+\begin{center}
+\begin{tabular} {| c | c | c |}
+\hline
+          & Execution Time (sec) & Num of Iterations\\ \hline
+Gauss Elim& $0.017373$ & N/A\\ \hline
+Jacob     & $ \infty $ & $\infty$\\ \hline
+G-S       & $ \infty $ & $\infty$\\ \hline
+CG        & $0.242193$ & $162$\\ \hline
+PCG - M1  & $0.269893$ & $258$\\ \hline
+PCG - M2  & $ \infty $ & $\infty$\\
+\hline
+\end{tabular}
+\end{center}
+
+\center{Algorithm Performance for n=$160$}
+\begin{center}
+\begin{tabular} {| c | c | c |}
+\hline
+          & Execution Time (sec) & Num of Iterations\\ \hline
+Gauss Elim& $0.06052$ & N/A\\ \hline
+Jacob     & $ \infty $ & $\infty$\\ \hline
+G-S       & $ \infty $ & $\infty$\\ \hline
+CG        & $0.176183$ & $329$\\ \hline
+PCG - M1  & $1.503575$ & $521$\\ \hline
+PCG - M2  & $ \infty $ & $\infty$\\
+\hline
+\end{tabular}
+\end{center}
+
+The preconditioner I came up with was to use the inverse of $M2$.  From the results, you can see that it performs much better than $M2$ but not as well as $M1$.  
+
+\center{Algorithm Performance of PCG with new preconditioner}
+\begin{center}
+\begin{tabular} {| c | c | c |}
+\hline
+        & Execution Time (sec) & Num of Iterations\\ \hline
+n = 10  & $0.025841$ & $41$ \\ \hline
+n = 20  & $0.040249$ & $70$ \\ \hline
+n = 40  & $0.632577$ & $133$\\ \hline
+n = 80  & $0.820794$ & $257$\\ \hline
+n = 160 & $1.485363$ & $523$\\
+\hline
+\end{tabular}
+\end{center}
+
+
+So, judging from the results in the tables above, certain algorithms do a much better job than others.  The slowest methods were the iterative techniques of Jacobian and Gauss-Seidel methods.  As far as the methods that I implemented, the conjugate gradient was probaby the fastest.  The preconditioned conjugate gradient method also worked well depending on which preconditioner was used.  The best preconditioner was $M_1 = diag(4)$, but taking the inverse of $M_1$ worked well too.  However, the preconditioner $M_2$ took significantly longer to run and required more iterations.  Surprisingly, Gaussian elimination, was the fastest.  However, since we were relying on MATLAB's A \textbackslash b method and we can't see the code behind it, we can't be certain what's going on behind the scenes; it's possible that MATLAB has some function calls to optimize the process which would explain the quick execution times.  
+
+\bigskip
+\bigskip
+\bigskip
+
+
+The following code is the implementation of just the conjugate gradient method without the preconditioner.  
+
+\begin{lstlisting} [frame=single]
+function [ x ] = cg( A, b, x )
+
+TOL = 1e-15;
+N = 10000;
+
+r = b - A * x;
+p = r;
+r_old = r' * r;
+k = 1;
+while k <= N
+    prod = A * p;
+    denom = p' * prod;
+    alpha = r_old / denom;
+    x = x + alpha * p;
+    r = r - alpha * prod;
+    r_new = r' * r;
+    if r_new <= TOL
+        fprintf('Algorithm complete after %d iterations: \n', k);
+        break;
+    end
+    p = r + r_new / r_old * p;
+    r_old = r_new;
+    k = k + 1;
+end
+
+if k > N
+    fprintf('The maximum number of iterations was exceeded. \n');
+end
+end
+\end{lstlisting}
+
+\bigskip
+\bigskip
+
+The following code shows how to compute the Jacobian Iterative method.  
+
+\begin{lstlisting} [frame=single]
+function [  ] = jb( n, A, b )
+% This functions performs the jacobian iterative method to solve a system
+% of linear equations.  
+
+XO = zeros(n,1);
+TOL = 1e-15;
+N = 1000;
+
+%step 1
+k = 1;
+
+%step 2
+null_x = zeros(n,1);
+while k <= N
+    %step 3
+    for i = 1:n
+        empty = 0;
+        for j = 1:n
+            if (j ~= i)
+                empty = empty + (A(i,j) * XO(j));
+            end
+        end
+        null_x(i) = (1/A(i,i)) * (-1 * empty + b(i));
+    end
+    
+    %step 4
+    norm = null_x - XO;
+    norm = abs(norm);
+    final_norm = max(norm);
+    if final_norm < TOL
+        fprintf('The procedure was successful. \n');
+        fprintf('The solution vector is: \n');
+        fprintf('\n');
+        fprintf('%d\n', null_x);
+        fprintf('\n');
+        fprintf('After K iterations: %d\n', k);
+        break;
+    end
+    
+    k = k + 1;
+    
+    for i = 1:n
+        XO(i) = null_x(i);
+    end
+end
+
+if k > N
+    fprintf('The procedure was unsuccessful. \n');
+    fprintf('Maximum number of iterations exceeded. \n');
+end
+end
+\end{lstlisting}
+
+\bigskip
+\bigskip
+
+
+The following code shows how to compute the Gauss-Seidel Iterative method.
+
+\begin{lstlisting} [frame=single]
+function x = gs( A, b, x0 )
+    tol = 1e-15;
+    N = 10000;
+    n = length(b);
+    x = zeros(n, 1);
+    for k = 1:N
+        for i = 1:n
+            s = 0;
+            cond = true;
+            for j = 1:n
+                if j == i
+                    cond = false;
+                elseif cond
+                    s = s + A(i, j) * x(j);
+                else
+                    s = s + A(i, j) * x0(j);
+                end
+            end
+            x(i) = (-s + b(i)) / A(i, i);
+        end
+        if max(abs(x - x0)) < tol
+            fprintf('required %d iterations\n', k);
+            return;
+        end
+        x0 = x;
+    end
+    fprintf('required %d iterations\n', k);
+end
+\end{lstlisting}
+
+
+% -----------end document --------------------
+\end{document}

@@ -1,0 +1,16 @@
+// Alexander Powell
+// HW 8
+// Numerical Analysis - Math 414
+
+Video Lesson 4 Reflection.  
+Reflection:
+
+The video on lesson four continues to descibe the steps of the Navier-Stokes equation.  Basically, they describe an ititial profile and apply a space-time discretization to it.  Numerical schemes like forward and backward difference methods are applied to the discretization (time using forward difference and space using backwards).  By calculating the transpose, we are able to obtain values t(n+1) from t(n) values, thus making it an iterative method, easily implemented in a language like MATLAB.  
+
+The next part of the video presents step 2 of Navier-Stokes equation.  The only difference in the discretization is changing the constant c into u.  
+
+
+
+
+Typo Warning:
+They typo warning in the video was referencing the boundary conditions for steps 1 and 2.  The video stated that u = 0 for the interval [0,2] but it was corrected to be u = 1 for [0,2].  

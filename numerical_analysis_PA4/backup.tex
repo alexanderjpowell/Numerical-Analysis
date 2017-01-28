@@ -1,0 +1,187 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Short Sectioned Assignment
+% LaTeX Template
+% Version 1.0 (5/5/12)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% Original author:
+% Frits Wenneker (http://www.howtotex.com)
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass[paper=a4, fontsize=11pt]{scrartcl} % A4 paper and 11pt font size
+
+\usepackage[T1]{fontenc} % Use 8-bit encoding that has 256 glyphs
+\usepackage{fourier} % Use the Adobe Utopia font for the document - comment this line to return to the LaTeX default
+\usepackage[english]{babel} % English language/hyphenation
+\usepackage{amsmath,amsfonts,amsthm} % Math packages
+\usepackage{listings}
+\usepackage{graphicx}
+%\graphicspath{ {Desktop/PA3_numerical_analysis/} }
+
+\usepackage{lipsum} % Used for inserting dummy 'Lorem ipsum' text into the template
+
+\usepackage{sectsty} % Allows customizing section commands
+\allsectionsfont{\centering \normalfont\scshape} % Make all sections centered, the default font and small caps
+
+\usepackage{fancyhdr} % Custom headers and footers
+\pagestyle{fancyplain} % Makes all pages in the document conform to the custom headers and footers
+\fancyhead{} % No page header - if you want one, create it in the same way as the footers below
+\fancyfoot[L]{} % Empty left footer
+\fancyfoot[C]{} % Empty center footer
+\fancyfoot[R]{\thepage} % Page numbering for right footer
+\renewcommand{\headrulewidth}{0pt} % Remove header underlines
+\renewcommand{\footrulewidth}{0pt} % Remove footer underlines
+\setlength{\headheight}{13.6pt} % Customize the height of the header
+
+\numberwithin{equation}{section} % Number equations within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+\numberwithin{figure}{section} % Number figures within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+\numberwithin{table}{section} % Number tables within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+
+\setlength\parindent{0pt} % Removes all indentation from paragraphs - comment this line for an assignment with lots of text
+
+%----------------------------------------------------------------------------------------
+%	TITLE SECTION
+%----------------------------------------------------------------------------------------
+
+\newcommand{\horrule}[1]{\rule{\linewidth}{#1}} % Create horizontal rule command with 1 argument of height
+
+\title{	
+\normalfont \normalsize 
+\textsc{The College of William and Mary} \\ [25pt] % Your university, school and/or department name(s)
+\horrule{0.5pt} \\[0.4cm] % Thin top horizontal rule
+\huge Programming Assignment \#4 \\ % The assignment title
+\horrule{2pt} \\[0.5cm] % Thick bottom horizontal rule
+}
+
+\author{Alexander Powell} % Your name
+
+\date{\normalsize December 3, 2014} % Today's date or a custom date
+
+\begin{document}
+\lstset{language=MATLAB}
+
+\maketitle % Print the title
+
+%----------------------------------------------------------------------------------------
+%	PROBLEM 1
+%----------------------------------------------------------------------------------------
+
+\section{}
+
+
+
+
+
+% ----------------
+% PROBLEM 2
+% ----------------
+
+\section{}
+
+The monte carlo simulation of the integral from problem $2$ was implemented using the code given below.  The built-in MATLAB functions \textit{zeros()} and \textit{sum()} were used.  
+
+
+
+
+
+\begin{lstlisting} [frame=single]
+function [ integral ] = monte_carlo( N )
+a = zeros([1,N]);
+for i = 1:N  
+    a(i) = 2*rand - 1;
+end
+b = zeros([1,N]);
+for i = 1:N  
+    b(i) = 2*rand - 1;
+end
+x = a;
+y = b;
+temp = zeros([1,N]);
+for j = 1:N
+    if ((x(j).^2 + y(j).^2) < 1)
+        temp(j) = 1;
+    else
+        temp(j) = 0;
+    end
+end
+c = temp;
+total = sum(c)
+integral = 4.*(1/N).*(total);
+end
+\end{lstlisting}
+
+To implement step $4$ of the Monte Carlo simulation, I calculated the integral 1000 times and took the average using the following shell commands.  
+
+\begin{lstlisting} [frame=single]
+>> t = zeros([1,1000]);
+>> for i = 1:1000
+>>    t(i) = monte_carlo(100000);
+>> end
+>> mean(t)
+\end{lstlisting}
+
+
+The following table presents the computed values of the integral for the given values of $N$ with their respective relative errors.  
+
+\center{$a_j, b_j, c_j$ and $d_j$ values for $x(t)$}
+%\begin{table} [H]
+%\caption{Hello}
+\begin{center}
+  \begin{tabular}{ | c || c | c | }
+    \hline
+    $N$    & Integral Approx & Rel Error \\ \hline
+    2      & 3.20600000      & 0.45215311 \\ \hline
+    5      & 3.16320000      & 0.59569378 \\ \hline
+    10     & 3.13120000      & 0.16507177 \\ \hline
+    100    & 3.13736000      & 0.24401914 \\ \hline
+    1000   & 3.14117200      & 0.35885167 \\
+    10000  & 3.14101240      & 0.24401914 \\ \hline
+    100000 & 3.14139904      & 0.24401914 \\
+    \hline
+  \end{tabular}
+\end{center}
+%\end{table}
+
+
+\center{$a_j, b_j, c_j$ and $d_j$ values for $y(t)$}
+%\begin{table} [H]
+%\caption{other}
+\begin{center}
+  \begin{tabular}{ c || c | c | c | c }
+    %\hline
+    i & $a_i$ & $b_i$ & $c_i$ & $d_i$\\ \hline
+    0 & 1   &-0.76076555 & 0          & 0.26076555 \\ \hline
+    1 & 0.5 & 0.02153110 & 0.78229665 &-0.30382775 \\ \hline
+    2 & 1   & 0.67464114 &-0.12918660 &-0.04545454 \\ \hline
+    3 & 1.5 & 0.27990430 &-0.26555023 &-0.01435406 \\ \hline
+    4 & 1.5 &-0.29425837 &-0.30861244 & 0.10287081 \\
+    \hline
+  \end{tabular}
+\end{center}
+%\end{table}
+
+
+
+
+%----------------------------------------------------------------------------------------
+%	PROBLEM 2
+%----------------------------------------------------------------------------------------
+
+
+\section{}
+
+
+
+
+% -----------end document --------------------
+\end{document}

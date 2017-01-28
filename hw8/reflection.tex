@@ -1,0 +1,127 @@
+       
+ 
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Short Sectioned Assignment
+    % LaTeX Template
+    % Version 1.0 (5/5/12)
+    %
+    % This template has been downloaded from:
+    % http://www.LaTeXTemplates.com
+    %
+    % Original author:
+    % Frits Wenneker (http://www.howtotex.com)
+    %
+    % License:
+    % CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+     
+    %----------------------------------------------------------------------------------------
+    %       PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+    %----------------------------------------------------------------------------------------
+     
+    \documentclass[paper=a4, fontsize=11pt]{scrartcl} % A4 paper and 11pt font size
+     
+    \usepackage[T1]{fontenc} % Use 8-bit encoding that has 256 glyphs
+    \usepackage{fourier} % Use the Adobe Utopia font for the document - comment this line to return to the LaTeX default
+    \usepackage[english]{babel} % English language/hyphenation
+    \usepackage{amsmath,amsfonts,amsthm} % Math packages
+    \usepackage{listings}
+    \usepackage{graphicx}
+    %\graphicspath{ {Desktop/PA3_numerical_analysis/} }
+     
+    \usepackage{lipsum} % Used for inserting dummy 'Lorem ipsum' text into the template
+     
+    \usepackage{sectsty} % Allows customizing section commands
+    \allsectionsfont{\centering \normalfont\scshape} % Make all sections centered, the default font and small caps
+     
+    \usepackage{fancyhdr} % Custom headers and footers
+    \pagestyle{fancyplain} % Makes all pages in the document conform to the custom headers and footers
+    \fancyhead{} % No page header - if you want one, create it in the same way as the footers below
+    \fancyfoot[L]{} % Empty left footer
+    \fancyfoot[C]{} % Empty center footer
+    \fancyfoot[R]{\thepage} % Page numbering for right footer
+    \renewcommand{\headrulewidth}{0pt} % Remove header underlines
+    \renewcommand{\footrulewidth}{0pt} % Remove footer underlines
+    \setlength{\headheight}{13.6pt} % Customize the height of the header
+     
+    \numberwithin{equation}{section} % Number equations within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+    \numberwithin{figure}{section} % Number figures within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+    \numberwithin{table}{section} % Number tables within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+     
+    \setlength\parindent{0pt} % Removes all indentation from paragraphs - comment this line for an assignment with lots of text
+     
+    %----------------------------------------------------------------------------------------
+    %       TITLE SECTION
+    %----------------------------------------------------------------------------------------
+     
+    \newcommand{\horrule}[1]{\rule{\linewidth}{#1}} % Create horizontal rule command with 1 argument of height
+     
+    \title{
+    \normalfont \normalsize
+    \textsc{The College of William and Mary} \\ [25pt] % Your university, school and/or department name(s)
+    \horrule{0.5pt} \\[0.4cm] % Thin top horizontal rule
+    \huge Homework 8 Reflection \\ % The assignment title
+    \horrule{2pt} \\[0.5cm] % Thick bottom horizontal rule
+    }
+     
+    \author{Alexander Powell} % Your name
+     
+    \date{\normalsize April 16, 2015} % Today's date or a custom date
+     
+    \begin{document}
+    \lstset{language=MATLAB}
+    \maketitle % Print the title
+     
+    % -------BEGIN DOCUMENT----------%
+     
+     \section{Reflection}
+         
+    The video on lesson four continues to descibe step 1 of the Navier-Stokes equation.  Basically, they describe an ititial profile and apply a space-time discretization to it.  Numerical schemes like forward and backward difference methods are applied to the discretization (time using forward difference and space using backwards).  By calculating the transpose, we are able to obtain values $t_{n+1}$ from $t_n$ values, thus making it an iterative method, easily implemented in a language like MATLAB.  
+     
+    The next part of the video presents step $2$ of Navier-Stokes equation.  The only difference in the discretization is changing the constant $c$ into $u_i^n$.  
+     
+    Step 3 introduces the one dimension diffusion formula.  Also, according to the video, the physics of diffusion is isotrophic in nature, and for that reason the finite difference method that represents it best is the central difference method (combination of forward and backward differences).  In step $3$, she uses a forward difference in time, and a central difference in space.  Again, the equation is discretized and written as an iterative scheme by taking the transpose.  
+   
+    Step 4 outlines Burgers' equation, and again the strategy is the same as the previous steps.  In this step, the plotted numerical results follow a periodic pattern.  
+     
+     \bigskip
+     
+    Typo Warning:
+    They typo warnings in the video were referencing the boundary conditions for steps $1$ and $2$.  The video stated that $u = 0$ for the interval $(0,2)$ but it was corrected to be $u = 1$ for $(0,2)$.  
+   
+    \section{Step $2$ Nonlinear Convection Code}
+   
+    The following MATLAB code is an implementation of step $2$ non-linear convection.  
+   
+    \begin{lstlisting}
+    function Step2( )
+    %initial condition
+    nx = 20;
+    dx = 2 / (nx - 1);
+    nt = 25; %250 for nonlin
+    dt = 0.025; %0.0025 for nonlin
+    c = 1;
+    lamda = abs(c * dt/dx)
+    u = ones(nx, 1);
+    u(0.5/dx : 1/dx + 1) = 2;
+    plot(u);
+     
+    frame_counter = 1;
+    for n = 1:nt
+        un = u;
+        for i = 2:nx-1
+                % The only difference occurs right below this comment.
+            % The Constant c is replaced with un(i).  
+            u(i) = un(i) - un(i) * (dt/dx) * (un(i) - un(i-1));
+        end
+        plot(linspace(0,2,nx),u);
+        F(frame_counter) = getframe;
+        frame_counter = frame_counter + 1;
+    end
+    end
+    \end{lstlisting}
+     
+    % --------END DOCUMENT-----------%
+     
+    \end{document}
